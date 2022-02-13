@@ -17,6 +17,7 @@ lazy val root = (project in file("."))
       Library.http4s("dsl"),
       Library.circe,
       Library.circeExtras,
+      Library.derevoCirce,
       Library.logback,
       Library.pureConfig,
       Library.munit,

@@ -1,3 +1,8 @@
 package connectionapi.developerconnection.domain.dto
 
-case class DeveloperConnectionResponse(connected: Boolean, organisations: Seq[String]) // todo possibly add newtypes
+import connectionapi.developerconnection.domain.developerconnection.{ Connected, OrganizationName }
+import derevo.circe.magnolia.{ decoder, encoder }
+import derevo.derive
+
+@derive(decoder, encoder)
+case class DeveloperConnectionResponse(connected: Connected, organisations: Seq[OrganizationName])

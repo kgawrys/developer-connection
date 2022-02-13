@@ -3,12 +3,13 @@ import sbt._
 object Dependencies {
 
   object Version {
-    val http4s     = "1.0.0-M31"
     val circe      = "0.14.1"
+    val derevo     = "0.12.8"
+    val http4s     = "1.0.0-M31"
+    val newtype    = "0.4.4"
     val log4cats   = "2.2.0"
     val logback    = "1.2.10"
     val pureConfig = "0.17.1"
-    val newtype    = "0.4.4"
 
     // Test
     val munit           = "0.7.29"
@@ -20,14 +21,17 @@ object Dependencies {
   }
 
   object Library { // Libraries
-    def http4s(module: String): ModuleID = "org.http4s" %% s"http4s-$module" % Version.http4s
+    def http4s(module: String): ModuleID   = "org.http4s" %% s"http4s-$module"   % Version.http4s
+    def derevo(artifact: String): ModuleID = "tf.tofu"    %% s"derevo-$artifact" % Version.derevo
+
+    val derevoCirce = derevo("circe-magnolia")
 
     val circe       = "io.circe"              %% "circe-generic"        % Version.circe
     val circeExtras = "io.circe"              %% "circe-generic-extras" % Version.circe
+    val newtype     = "io.estatico"           %% "newtype"              % Version.newtype
     val log4cats    = "org.typelevel"         %% "log4cats-slf4j"       % Version.log4cats
     val logback     = "ch.qos.logback"         % "logback-classic"      % Version.logback
     val pureConfig  = "com.github.pureconfig" %% "pureconfig"           % Version.pureConfig
-    val newtype     = "io.estatico"           %% "newtype"              % Version.newtype
 
     val munit           = "org.scalameta" %% "munit"               % Version.munit           % Test // todo scalatest (?)
     val munitCatsEffect = "org.typelevel" %% "munit-cats-effect-3" % Version.munitCatsEffect % Test // todo scalatest (?)
