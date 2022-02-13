@@ -1,4 +1,4 @@
-import Dependencies._
+import Dependencies.Library
 
 name := "developer-connection"
 
@@ -8,6 +8,7 @@ scalaVersion := "2.13.8"
 
 lazy val root = (project in file("."))
   .settings(
+    scalacOptions ++= List("-Ymacro-annotations"),
     scalacOptions ~= (_.filterNot(Set("-Xfatal-warnings"))),
     libraryDependencies ++= Seq(
       Library.http4s("ember-server"),
@@ -20,6 +21,7 @@ lazy val root = (project in file("."))
       Library.pureConfig,
       Library.munit,
       Library.munitCatsEffect,
+      Library.newtype,
       Library.log4catsNoOp,
       Library.betterMonadicFor,
       Library.kindProjector
