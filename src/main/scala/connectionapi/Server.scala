@@ -7,8 +7,8 @@ import connectionapi.github.GithubApiService
 import connectionapi.routes.DeveloperConnectionRoutes
 import fs2.Stream
 import org.http4s.HttpApp
+import org.http4s.blaze.client.BlazeClientBuilder
 import org.http4s.client.Client
-import org.http4s.ember.client.EmberClientBuilder
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.server.middleware.{ RequestLogger, ResponseLogger }
 import org.typelevel.log4cats.SelfAwareStructuredLogger
@@ -20,11 +20,7 @@ object Server {
 
     implicit val logger: SelfAwareStructuredLogger[IO] = Slf4jLogger.getLogger[IO]
 
-    lazy val httpClient: Resource[IO, Client[IO]] = EmberClientBuilder
-      .default[IO]
-      .withTimeout(config.httpClient.timeout)
-      .withIdleTimeInPool(config.httpClient.idleTimeInPool)
-      .build
+    lazy val httpClient: Resource[IO, Client[IO]] = BlazeClientBuilder[IO].withDefaultSslContext.resource
 
     val routes: Resource[IO, HttpApp[IO]] = for {
       client <- httpClient

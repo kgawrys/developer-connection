@@ -21,8 +21,8 @@ final case class DeveloperConnectionRoutes[F[_]: Sync: Logger](developerConnecti
         .areConnected(devName1, devName2)
         .flatMap(Ok(_)) // todo add error handling and adt for errors
         .handleErrorWith { ex =>
-          Logger[F].error(s"Unhandled error occurred: $ex")
-          InternalServerError()
+          Logger[F].error(s"Unhandled error occurred: $ex") *>
+            InternalServerError()
         }
   }
 

@@ -19,8 +19,11 @@ object DeveloperConnectionService {
   ): DeveloperConnectionService[F] =
     new DeveloperConnectionService[F] {
       def areConnected(devName1: DeveloperName, devName2: DeveloperName): F[DeveloperConnectionResponse] =
-        Logger[F].debug(s"devName1: ${devName1.value}, devName2: ${devName2.value}") *> // todo remove this logger
-          Async[F].pure(DeveloperConnectionResponse(Connected(false), Seq.empty[OrganizationName])) // todo to implement
+        for {
+          dev1Orgs <- githubApiService.getOrganizations(devName1)
+          dev2Orgs <- githubApiService.getOrganizations(devName2)
+          _        <- Logger[F].info(s"devName1: ${devName1.value}, devName2: ${devName2.value}, dev1Orgs: $dev1Orgs") // todo remove this logger
+        } yield DeveloperConnectionResponse(Connected(false), Seq.empty[OrganizationName])
     }
 
 }
