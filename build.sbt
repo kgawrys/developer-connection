@@ -1,0 +1,30 @@
+import Dependencies._
+
+name := "developer-connection"
+
+version := "0.1.0-SNAPSHOT"
+
+scalaVersion := "2.13.8"
+
+lazy val root = (project in file("."))
+  .settings(
+    scalacOptions ~= (_.filterNot(Set("-Xfatal-warnings"))),
+    libraryDependencies ++= Seq(
+      Library.http4s("ember-server"),
+      Library.http4s("ember-client"),
+      Library.http4s("circe"),
+      Library.http4s("dsl"),
+      Library.circe,
+      Library.circeExtras,
+      Library.logback,
+      Library.pureConfig,
+      Library.munit,
+      Library.munitCatsEffect,
+      Library.log4catsNoOp,
+      Library.betterMonadicFor,
+      Library.kindProjector
+    ),
+    testFrameworks += new TestFramework("munit.Framework")
+  )
+
+fork := true // https://github.com/typelevel/cats-effect/pull/833/files
