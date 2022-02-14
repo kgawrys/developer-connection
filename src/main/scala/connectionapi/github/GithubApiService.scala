@@ -36,7 +36,7 @@ object GithubApiService {
         val result = for {
           uri      <- buildUri(developerName)
           request  <- buildRequest(uri)
-          response <- sendRequest(client, request)
+          response <- sendRequest(client, request, developerName)
         } yield response
 
         result.handleErrorWith {
@@ -68,17 +68,19 @@ object GithubApiService {
           )
         )
 
-      private def sendRequest(client: Client[F], request: Request[F]): F[Seq[GithubOrganization]] =
+      private def sendRequest(client: Client[F], request: Request[F], developerName: DeveloperName): F[Seq[GithubOrganization]] =
         Logger[F].info(s"Sending request to Github: $request") *>
           client
             .run(request)
-            .use(handleResponse)
+            .use(response => handleResponse(response, developerName))
 
-      private def handleResponse(response: Response[F]): F[Seq[GithubOrganization]] =
+      private def handleResponse(response: Response[F], developerName: DeveloperName): F[Seq[GithubOrganization]] =
         response.status match {
-          case Status.Ok            => response.asJsonDecode[Seq[GithubOrganization]]
-          case st @ Status.NotFound => UserNotFound(buildMsg(st)).raiseError[F, Seq[GithubOrganization]]
-          case st                   => APICallFailure(buildMsg(st)).raiseError[F, Seq[GithubOrganization]]
+          case Status.Ok => response.asJsonDecode[Seq[GithubOrganization]]
+          case Status.NotFound =>
+            UserNotFound(s"${developerName.value} is no a valid user in Github")
+              .raiseError[F, Seq[GithubOrganization]] // todo UserNotFound is not an error, could be passed as an either
+          case st => APICallFailure(buildMsg(st)).raiseError[F, Seq[GithubOrganization]]
         }
 
       private def buildMsg(st: Status) = s"Failed with code: ${st.code} and message: ${Option(st.reason).getOrElse("unknown")}"
