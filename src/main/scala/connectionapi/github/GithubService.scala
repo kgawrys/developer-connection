@@ -16,17 +16,16 @@ import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.headers.{ Accept, `User-Agent` }
 import org.typelevel.log4cats.Logger
 
-trait GithubApiService[F[_]] {
+trait GithubService[F[_]] {
   def getOrganizations(developerName: DeveloperName): F[Seq[GithubOrganization]]
 }
 
-// todo make a generic api service call
-object GithubApiService {
+object GithubService {
   def make[F[_]: Async: Logger](
       client: Client[F],
       config: GithubConfig
-  ): GithubApiService[F] =
-    new GithubApiService[F] with Http4sClientDsl[F] {
+  ): GithubService[F] =
+    new GithubService[F] with Http4sClientDsl[F] {
 
       implicit val organizationsEntityDecoder: EntityDecoder[F, Seq[GithubOrganization]] = jsonOf[F, Seq[GithubOrganization]]
 

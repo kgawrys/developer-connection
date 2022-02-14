@@ -4,7 +4,7 @@ import derevo.circe.magnolia.decoder
 import derevo.derive
 import io.estatico.newtype.macros.newtype
 
-object twitter {
+object TwitterDomain {
   @derive(decoder)
   @newtype
   case class ErrorDetail(value: String)

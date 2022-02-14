@@ -3,9 +3,10 @@ package connectionapi
 import cats.effect._
 import connectionapi.config.Config
 import connectionapi.developerconnection.DeveloperConnectionService
-import connectionapi.github.GithubApiService
+
+import connectionapi.github.GithubService
 import connectionapi.routes.DeveloperConnectionRoutes
-import connectionapi.twitter.TwitterApiService
+import connectionapi.twitter.TwitterService
 import fs2.Stream
 import org.http4s.HttpApp
 import org.http4s.blaze.client.BlazeClientBuilder
@@ -26,9 +27,9 @@ object Server {
     val routes: Resource[IO, HttpApp[IO]] = for {
       client <- httpClient
     } yield {
-      val githubApiService           = GithubApiService.make[IO](client, config.githubConfig)
-      val twitterApiService          = TwitterApiService.make[IO](client, config.twitterConfig)
-      val developerConnectionService = DeveloperConnectionService.make(githubApiService, twitterApiService)
+      val githubService              = GithubService.make[IO](client, config.githubConfig)
+      val twitterService             = TwitterService.make[IO](client, config.twitterConfig)
+      val developerConnectionService = DeveloperConnectionService.make(githubService, twitterService)
 
       DeveloperConnectionRoutes[IO](developerConnectionService).routes.orNotFound
     }

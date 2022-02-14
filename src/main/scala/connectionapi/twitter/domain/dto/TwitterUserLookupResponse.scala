@@ -1,6 +1,6 @@
 package connectionapi.twitter.domain.dto
 
-import connectionapi.twitter.domain.twitter.{ ErrorDetail, ErrorTitle, TwitterId, TwitterUserName }
+import connectionapi.twitter.domain.TwitterDomain._
 import derevo.circe.magnolia.decoder
 import derevo.derive
 

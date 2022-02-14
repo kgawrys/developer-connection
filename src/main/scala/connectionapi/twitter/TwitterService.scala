@@ -5,12 +5,12 @@ import cats.effect.Async
 import cats.implicits._
 import connectionapi.developerconnection.domain.developerconnection.DeveloperName
 import connectionapi.twitter.config.TwitterConfig
+import connectionapi.twitter.domain.TwitterDomain.TwitterId
 import connectionapi.twitter.domain.TwitterResponse.TwitterException
 import connectionapi.twitter.domain.TwitterResponse.TwitterException.{ APICallFailure, UserNotFound }
 import connectionapi.twitter.domain.dto.TwitterUserFollowingResponse.TwitterUserFollowing
-import connectionapi.twitter.domain.dto.{ TwitterError, TwitterUserInfo }
 import connectionapi.twitter.domain.dto.TwitterUserLookupResponse.TwitterUserLookup
-import connectionapi.twitter.domain.twitter.TwitterId
+import connectionapi.twitter.domain.dto.{ TwitterError, TwitterUserInfo }
 import io.circe.Decoder
 import org.http4s.Method._
 import org.http4s._
@@ -20,18 +20,18 @@ import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.headers.Authorization
 import org.typelevel.log4cats.Logger
 
-trait TwitterApiService[F[_]] {
+trait TwitterService[F[_]] {
   def userLookup(developerName: DeveloperName): F[TwitterUserLookup]
   def followingById(twitterId: TwitterId): F[TwitterUserFollowing]
   def followingByDeveloperName(developerName: DeveloperName): F[TwitterUserFollowing]
 }
 
-object TwitterApiService {
+object TwitterService {
   def make[F[_]: Async: Logger](
       client: Client[F],
       config: TwitterConfig
-  ): TwitterApiService[F] =
-    new TwitterApiService[F] with Http4sClientDsl[F] {
+  ): TwitterService[F] =
+    new TwitterService[F] with Http4sClientDsl[F] {
 
       implicit val userLookupEntityDecoder: EntityDecoder[F, TwitterUserInfo] = jsonOf[F, TwitterUserInfo]
 

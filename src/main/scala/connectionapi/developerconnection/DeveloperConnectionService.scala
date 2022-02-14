@@ -6,29 +6,29 @@ import cats.effect.Async
 import cats.implicits.{ catsSyntaxApplicativeError, _ }
 import connectionapi.developerconnection.domain.developerconnection.{ Connected, DeveloperName, OrganizationName }
 import connectionapi.developerconnection.domain.dto.DeveloperConnectionResponse
-import connectionapi.github.GithubApiService
+import connectionapi.github.GithubService
 import connectionapi.github.domain.dto.GithubOrganization
-import connectionapi.twitter.TwitterApiService
 import connectionapi.twitter.domain.dto.TwitterUserFollowingResponse.TwitterUserFollowing
-import connectionapi.twitter.domain.dto.TwitterUserLookupResponse
 import org.typelevel.log4cats.Logger
+import connectionapi.twitter.TwitterService
+
 trait DeveloperConnectionService[F[_]] {
   def areConnected(devName1: DeveloperName, devName2: DeveloperName): F[ValidatedNel[Throwable, DeveloperConnectionResponse]]
 }
 
 object DeveloperConnectionService {
   def make[F[_]: Async: Logger](
-      githubApiService: GithubApiService[F],
-      twitterApiService: TwitterApiService[F]
+      githubService: GithubService[F],
+      twitterService: TwitterService[F]
   ): DeveloperConnectionService[F] =
     new DeveloperConnectionService[F] {
 
       def areConnected(devName1: DeveloperName, devName2: DeveloperName): F[ValidatedNel[Throwable, DeveloperConnectionResponse]] =
         for {
-          dev1Orgs      <- githubApiService.getOrganizations(devName1).attempt
-          dev2Orgs      <- githubApiService.getOrganizations(devName2).attempt
-          dev1Following <- twitterApiService.followingByDeveloperName(devName1).attempt
-          dev2Following <- twitterApiService.followingByDeveloperName(devName2).attempt
+          dev1Orgs      <- githubService.getOrganizations(devName1).attempt
+          dev2Orgs      <- githubService.getOrganizations(devName2).attempt
+          dev1Following <- twitterService.followingByDeveloperName(devName1).attempt
+          dev2Following <- twitterService.followingByDeveloperName(devName2).attempt
           _             <- Logger[F].info(s"devName1: ${devName1.value}, devName2: ${devName2.value}") // todo remove this logger
         } yield handleResult(dev1Orgs, dev2Orgs, dev1Following, dev2Following)
 
