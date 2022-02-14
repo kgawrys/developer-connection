@@ -8,8 +8,8 @@ import connectionapi.twitter.config.TwitterConfig
 import connectionapi.twitter.domain.TwitterDomain.TwitterId
 import connectionapi.twitter.domain.TwitterResponse.TwitterException
 import connectionapi.twitter.domain.TwitterResponse.TwitterException.{ APICallFailure, UserNotFound }
-import connectionapi.twitter.domain.dto.TwitterUserFollowingResponse.TwitterUserFollowing
-import connectionapi.twitter.domain.dto.TwitterUserLookupResponse.TwitterUserLookup
+import connectionapi.twitter.domain.dto.TwitterUserFollowing
+import connectionapi.twitter.domain.dto.TwitterUserLookup
 import connectionapi.twitter.domain.dto.{ TwitterError, TwitterUserInfo }
 import io.circe.Decoder
 import org.http4s.Method._
@@ -96,6 +96,9 @@ object TwitterService {
           case st        => APICallFailure(buildMsg(st)).raiseError[F, A]
         }
 
+      /** In case of not found user, Twitter returns OK and different message type. It is handled with "fallback" serialization to error type in case when
+        * failure in serialization of the main type occurs.
+        */
       private def decodeWithFallback[A: Decoder](response: Response[F], userHandle: String): F[A] =
         response
           .asJsonDecode[A]

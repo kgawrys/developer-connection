@@ -4,17 +4,11 @@ import connectionapi.twitter.domain.TwitterDomain._
 import derevo.circe.magnolia.decoder
 import derevo.derive
 
-sealed trait TwitterUserFollowingResponse
-object TwitterUserFollowingResponse {
-  @derive(decoder)
-  case class TwitterUserFollowing(data: TwitterUserFollowingData) extends TwitterUserFollowingResponse
-}
+@derive(decoder)
+case class TwitterUserFollowing(data: Seq[TwitterUserFollowingData])
 
-sealed trait TwitterUserLookupResponse
-object TwitterUserLookupResponse {
-  @derive(decoder)
-  case class TwitterUserLookup(data: TwitterUserInfo) extends TwitterUserLookupResponse
-}
+@derive(decoder)
+case class TwitterUserLookup(data: TwitterUserInfo)
 
 @derive(decoder)
 case class TwitterError(errors: Seq[UserLookupError])

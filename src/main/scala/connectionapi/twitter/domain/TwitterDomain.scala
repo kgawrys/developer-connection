@@ -15,7 +15,7 @@ object TwitterDomain {
 
   @derive(decoder)
   @newtype
-  case class TwitterId(value: Int)
+  case class TwitterId(value: String)
 
   @derive(decoder)
   @newtype
