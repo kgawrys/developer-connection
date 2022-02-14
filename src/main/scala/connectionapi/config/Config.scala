@@ -4,6 +4,7 @@ import cats.effect.Sync
 import com.comcast.ip4s.{ Host, Port }
 import connectionapi.config.Config.{ AppConfig, HttpClientConfig }
 import connectionapi.github.config.GithubConfig
+import connectionapi.twitter.config.TwitterConfig
 import pureconfig.error.CannotConvert
 import pureconfig.generic.auto._
 import pureconfig.{ ConfigCursor, ConfigReader, ConfigSource }
@@ -13,7 +14,8 @@ import scala.concurrent.duration.FiniteDuration
 case class Config(
     app: AppConfig,
     httpClient: HttpClientConfig,
-    githubConfig: GithubConfig
+    githubConfig: GithubConfig,
+    twitterConfig: TwitterConfig
 )
 
 object Config {

@@ -30,7 +30,7 @@ object GithubApiService {
 
       implicit val organizationsEntityDecoder: EntityDecoder[F, Seq[GithubOrganization]] = jsonOf[F, Seq[GithubOrganization]]
 
-      def userOrganizationsPath(developerName: DeveloperName) = s"${config.baseUri}/users/${developerName.value}/orgs"
+      private def userOrganizationsPath(developerName: DeveloperName) = s"${config.baseUri}/users/${developerName.value}/orgs"
 
       override def getOrganizations(developerName: DeveloperName): F[Seq[GithubOrganization]] = {
         val result = for {

@@ -1,7 +1,8 @@
 package connectionapi.routes.domain
 
 import cats.data.NonEmptyList
-import connectionapi.github.domain.GithubResponse.GithubException.{ APICallFailure, UserNotFound }
+import connectionapi.github.domain.GithubResponse.GithubException
+import connectionapi.twitter.domain.TwitterResponse.TwitterException
 import derevo.circe.magnolia.encoder
 import derevo.derive
 
@@ -12,8 +13,11 @@ case class ErrorsResponse(errors: List[String])
 case object ErrorsResponse {
   def apply(errors: NonEmptyList[Throwable]): ErrorsResponse =
     ErrorsResponse(errors.map {
-      case UserNotFound(msg)   => msg
-      case APICallFailure(msg) => msg
-      case t @ _               => t.getClass.getName
+      case GithubException.UserNotFound(msg)    => msg
+      case GithubException.APICallFailure(msg)  => msg
+      case TwitterException.UserNotFound(msg)   => msg
+      case TwitterException.UserIdNotFound(msg) => msg
+      case TwitterException.APICallFailure(msg) => msg
+      case t @ _                                => t.getClass.getName
     }.toList)
 }

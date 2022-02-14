@@ -5,6 +5,7 @@ import connectionapi.config.Config
 import connectionapi.developerconnection.DeveloperConnectionService
 import connectionapi.github.GithubApiService
 import connectionapi.routes.DeveloperConnectionRoutes
+import connectionapi.twitter.TwitterApiService
 import fs2.Stream
 import org.http4s.HttpApp
 import org.http4s.blaze.client.BlazeClientBuilder
@@ -26,7 +27,8 @@ object Server {
       client <- httpClient
     } yield {
       val githubApiService           = GithubApiService.make[IO](client, config.githubConfig)
-      val developerConnectionService = DeveloperConnectionService.make(githubApiService)
+      val twitterApiService          = TwitterApiService.make[IO](client, config.twitterConfig)
+      val developerConnectionService = DeveloperConnectionService.make(githubApiService, twitterApiService)
 
       DeveloperConnectionRoutes[IO](developerConnectionService).routes.orNotFound
     }
