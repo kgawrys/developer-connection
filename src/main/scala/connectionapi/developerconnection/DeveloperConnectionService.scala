@@ -8,7 +8,7 @@ import connectionapi.developerconnection.domain.developerconnection.{ Connected,
 import connectionapi.developerconnection.domain.dto.DeveloperConnectionResponse
 import connectionapi.github.GithubService
 import connectionapi.github.domain.dto.GithubOrganization
-import connectionapi.twitter.domain.dto.TwitterUserFollowingResponse.TwitterUserFollowing
+import connectionapi.twitter.domain.dto.TwitterUserFollowing
 import org.typelevel.log4cats.Logger
 import connectionapi.twitter.TwitterService
 
@@ -29,11 +29,12 @@ object DeveloperConnectionService {
           dev2Orgs      <- githubService.getOrganizations(devName2).attempt
           dev1Following <- twitterService.followingByDeveloperName(devName1).attempt
           dev2Following <- twitterService.followingByDeveloperName(devName2).attempt
-          _             <- Logger[F].info(s"devName1: ${devName1.value}, devName2: ${devName2.value}") // todo remove this logger
-        } yield handleResult(dev1Orgs, dev2Orgs, dev1Following, dev2Following)
+        } yield handleResult(devName1, devName2, dev1Orgs, dev2Orgs, dev1Following, dev2Following)
 
-      // todo type alias for either?
-      def handleResult(
+      // This is for accumulative error handling
+      private def handleResult(
+          devName1: DeveloperName,
+          devName2: DeveloperName,
           dev1Orgs: Either[Throwable, Seq[GithubOrganization]],
           dev2Orgs: Either[Throwable, Seq[GithubOrganization]],
           dev1Following: Either[Throwable, TwitterUserFollowing],
@@ -44,10 +45,28 @@ object DeveloperConnectionService {
           dev2Orgs.toValidatedNel,
           dev1Following.toValidatedNel,
           dev2Following.toValidatedNel
-        ).mapN { (dev1Orgs, dev2Orgs, dev1TwitterData, dev2TwitterData) =>
-          println(s"dev1ORgs: $dev1Orgs, dev2Orgs: $dev2Orgs, dev1Following: $dev1TwitterData, dev2Following: $dev2TwitterData")
-          DeveloperConnectionResponse(Connected(false), Seq.empty[OrganizationName])
+        ).mapN { (dev1Orgs, dev2Orgs, dev1Following, dev2Following) =>
+          resolveConnection(devName1, devName2, dev1Orgs, dev2Orgs, dev1Following, dev2Following)
         }
+
+      private def resolveConnection(
+          developerName1: DeveloperName,
+          developerName2: DeveloperName,
+          dev1Orgs: Seq[GithubOrganization],
+          dev2Orgs: Seq[GithubOrganization],
+          dev1Following: TwitterUserFollowing,
+          dev2Following: TwitterUserFollowing
+      ): DeveloperConnectionResponse = {
+        val commonOrganizations = dev1Orgs.map(_.login).intersect(dev2Orgs.map(_.login))
+        if (
+          dev1Following.data.map(_.username.value).contains(developerName2.value) &&
+          dev2Following.data.map(_.username.value).contains(developerName1.value) &&
+          commonOrganizations.nonEmpty
+        ) {
+          DeveloperConnectionResponse(Connected(true), commonOrganizations.map(OrganizationName(_)))
+        } else
+          DeveloperConnectionResponse(Connected(false), Nil)
+      }
 
     }
 
