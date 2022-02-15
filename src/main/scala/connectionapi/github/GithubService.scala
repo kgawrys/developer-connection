@@ -32,8 +32,6 @@ object GithubService {
   ): GithubService[F] =
     new GithubService[F] with Http4sClientDsl[F] {
 
-      implicit val organizationsEntityDecoder: EntityDecoder[F, Seq[GithubOrganization]] = jsonOf[F, Seq[GithubOrganization]]
-
       private def userOrganizationsPath(developerName: DeveloperName) = s"${config.baseUri}/users/${developerName.value}/orgs"
 
       override def getOrganizations(developerName: DeveloperName): F[Seq[GithubOrganization]] = memoizeF(Some(config.cacheTTL)) {

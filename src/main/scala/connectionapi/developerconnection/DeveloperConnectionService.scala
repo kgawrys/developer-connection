@@ -11,14 +11,13 @@ import connectionapi.github.GithubService
 import connectionapi.github.domain.dto.GithubOrganization
 import connectionapi.twitter.TwitterService
 import connectionapi.twitter.domain.dto.TwitterUserFollowing
-import org.typelevel.log4cats.Logger
 
 trait DeveloperConnectionService[F[_]] {
   def areConnected(devName1: DeveloperName, devName2: DeveloperName): F[ValidatedNel[Throwable, DeveloperConnectionResponse]]
 }
 
 object DeveloperConnectionService {
-  def make[F[_]: Async: Logger](
+  def make[F[_]: Async](
       githubService: GithubService[F],
       twitterService: TwitterService[F]
   ): DeveloperConnectionService[F] =
