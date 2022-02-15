@@ -8,9 +8,7 @@ import connectionapi.twitter.config.TwitterConfig
 import connectionapi.twitter.domain.TwitterDomain.TwitterId
 import connectionapi.twitter.domain.TwitterResponse.TwitterException
 import connectionapi.twitter.domain.TwitterResponse.TwitterException.{ APICallFailure, UserNotFound }
-import connectionapi.twitter.domain.dto.TwitterUserFollowing
-import connectionapi.twitter.domain.dto.TwitterUserLookup
-import connectionapi.twitter.domain.dto.{ TwitterError, TwitterUserInfo }
+import connectionapi.twitter.domain.dto.{ TwitterError, TwitterUserFollowing, TwitterUserInfo, TwitterUserLookup }
 import io.circe.Decoder
 import org.http4s.Method._
 import org.http4s._

@@ -75,11 +75,9 @@ object GithubService {
 
       private def handleResponse(response: Response[F], developerName: DeveloperName): F[Seq[GithubOrganization]] =
         response.status match {
-          case Status.Ok => response.asJsonDecode[Seq[GithubOrganization]]
-          case Status.NotFound =>
-            UserNotFound(s"${developerName.value} is no a valid user in Github")
-              .raiseError[F, Seq[GithubOrganization]] // todo UserNotFound is not an error, could be passed as an either
-          case st => APICallFailure(buildMsg(st)).raiseError[F, Seq[GithubOrganization]]
+          case Status.Ok       => response.asJsonDecode[Seq[GithubOrganization]]
+          case Status.NotFound => UserNotFound(s"${developerName.value} is no a valid user in Github").raiseError[F, Seq[GithubOrganization]]
+          case st              => APICallFailure(buildMsg(st)).raiseError[F, Seq[GithubOrganization]]
         }
 
       private def buildMsg(st: Status) = s"Failed with code: ${st.code} and message: ${Option(st.reason).getOrElse("unknown")}"
