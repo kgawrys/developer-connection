@@ -8,7 +8,7 @@ import connectionapi.twitter.config.TwitterConfig
 import connectionapi.twitter.domain.TwitterDomain.TwitterId
 import connectionapi.twitter.domain.TwitterResponse.TwitterException
 import connectionapi.twitter.domain.TwitterResponse.TwitterException.{ APICallFailure, UserNotFound }
-import connectionapi.twitter.domain.dto.{ TwitterError, TwitterUserFollowing, TwitterUserInfo, TwitterUserLookup }
+import connectionapi.twitter.domain.dto.{ TwitterError, TwitterUserFollowing, TwitterUserLookup }
 import io.circe.Decoder
 import org.http4s.Method._
 import org.http4s._
@@ -17,6 +17,8 @@ import org.http4s.client.Client
 import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.headers.Authorization
 import org.typelevel.log4cats.Logger
+import scalacache.Cache
+import scalacache.memoization.memoizeF
 
 trait TwitterService[F[_]] {
   def userLookup(developerName: DeveloperName): F[TwitterUserLookup]
@@ -28,25 +30,27 @@ object TwitterService {
   def make[F[_]: Async: Logger](
       client: Client[F],
       config: TwitterConfig
+  )(
+      implicit
+      cache: Cache[F, String, TwitterUserFollowing]
   ): TwitterService[F] =
     new TwitterService[F] with Http4sClientDsl[F] {
-
-      implicit val userLookupEntityDecoder: EntityDecoder[F, TwitterUserInfo] = jsonOf[F, TwitterUserInfo]
 
       private def userLookupPath(developerName: DeveloperName) = s"${config.baseUri}/users/by/username/${developerName.value}"
       private def userFollowingPath(twitterId: TwitterId)      = s"${config.baseUri}/users/${twitterId.value}/following"
 
-      override def followingByDeveloperName(developerName: DeveloperName): F[TwitterUserFollowing] =
+      override def followingByDeveloperName(developerName: DeveloperName): F[TwitterUserFollowing] = memoizeF(Some(config.cacheTTL)) {
         handleErrors(for {
           twitterId     <- userLookup(developerName)
           userFollowing <- followingById(twitterId.data.id)
         } yield userFollowing)
+      }
 
       override def followingById(twitterId: TwitterId): F[TwitterUserFollowing] =
         handleErrors(for {
           uri      <- buildFollowingUri(twitterId)
           request  <- buildRequest(uri)
-          response <- sendRequest[TwitterUserFollowing](client, request, twitterId.value.toString)
+          response <- sendRequest[TwitterUserFollowing](client, request, twitterId.value)
           _        <- Logger[F].info(s"Got response: $response")
         } yield response)
 

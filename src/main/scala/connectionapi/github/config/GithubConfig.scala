@@ -1,3 +1,5 @@
 package connectionapi.github.config
 
-case class GithubConfig(baseUri: String)
+import scala.concurrent.duration.FiniteDuration
+
+case class GithubConfig(baseUri: String, cacheTTL: FiniteDuration)

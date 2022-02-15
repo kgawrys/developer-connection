@@ -1,0 +1,1 @@
+Requires Java 11 (because of caffeine classes built on library >=3.0 built on Java 11)

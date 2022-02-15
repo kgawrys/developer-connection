@@ -15,6 +15,7 @@ lazy val root = (project in file("."))
       Library.http4s("blaze-client"),
       Library.http4s("circe"),
       Library.http4s("dsl"),
+      Library.scalaCacheCaffeine,
       Library.circe,
       Library.circeExtras,
       Library.derevoCirce,

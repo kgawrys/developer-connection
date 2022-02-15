@@ -15,6 +15,8 @@ import org.http4s.client.Client
 import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.headers.{ Accept, `User-Agent` }
 import org.typelevel.log4cats.Logger
+import scalacache.Cache
+import scalacache.memoization.memoizeF
 
 trait GithubService[F[_]] {
   def getOrganizations(developerName: DeveloperName): F[Seq[GithubOrganization]]
@@ -24,6 +26,9 @@ object GithubService {
   def make[F[_]: Async: Logger](
       client: Client[F],
       config: GithubConfig
+  )(
+      implicit
+      cache: Cache[F, String, Seq[GithubOrganization]]
   ): GithubService[F] =
     new GithubService[F] with Http4sClientDsl[F] {
 
@@ -31,7 +36,7 @@ object GithubService {
 
       private def userOrganizationsPath(developerName: DeveloperName) = s"${config.baseUri}/users/${developerName.value}/orgs"
 
-      override def getOrganizations(developerName: DeveloperName): F[Seq[GithubOrganization]] = {
+      override def getOrganizations(developerName: DeveloperName): F[Seq[GithubOrganization]] = memoizeF(Some(config.cacheTTL)) {
         val result = for {
           uri      <- buildUri(developerName)
           request  <- buildRequest(uri)

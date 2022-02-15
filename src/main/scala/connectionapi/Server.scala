@@ -3,10 +3,11 @@ package connectionapi
 import cats.effect._
 import connectionapi.config.Config
 import connectionapi.developerconnection.DeveloperConnectionService
-
 import connectionapi.github.GithubService
+import connectionapi.github.domain.dto.GithubOrganization
 import connectionapi.routes.DeveloperConnectionRoutes
 import connectionapi.twitter.TwitterService
+import connectionapi.twitter.domain.dto.TwitterUserFollowing
 import fs2.Stream
 import org.http4s.HttpApp
 import org.http4s.blaze.client.BlazeClientBuilder
@@ -15,6 +16,7 @@ import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.server.middleware.{ RequestLogger, ResponseLogger }
 import org.typelevel.log4cats.SelfAwareStructuredLogger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
+import scalacache.caffeine.CaffeineCache
 
 object Server {
 
@@ -24,8 +26,16 @@ object Server {
 
     lazy val httpClient: Resource[IO, Client[IO]] = BlazeClientBuilder[IO].withDefaultSslContext.resource
 
+    type GithubCache  = CaffeineCache[IO, String, Seq[GithubOrganization]]
+    type TwitterCache = CaffeineCache[IO, String, TwitterUserFollowing]
+
+    val githubCache  = Resource.make(CaffeineCache[IO, String, Seq[GithubOrganization]])(cache => cache.close)
+    val twitterCache = Resource.make(CaffeineCache[IO, String, TwitterUserFollowing])(cache => cache.close)
+
     val routes: Resource[IO, HttpApp[IO]] = for {
-      client <- httpClient
+      implicit0(ghCache: GithubCache)  <- githubCache
+      implicit0(ttCache: TwitterCache) <- twitterCache
+      client                           <- httpClient
     } yield {
       val githubService              = GithubService.make[IO](client, config.githubConfig)
       val twitterService             = TwitterService.make[IO](client, config.twitterConfig)
