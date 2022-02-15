@@ -10,6 +10,7 @@ lazy val root = (project in file("."))
   .settings(
     scalacOptions ++= List("-Ymacro-annotations"),
     scalacOptions ~= (_.filterNot(Set("-Xfatal-warnings"))),
+    testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
     libraryDependencies ++= Seq(
       Library.http4s("ember-server"),
       Library.http4s("blaze-client"),
@@ -21,14 +22,12 @@ lazy val root = (project in file("."))
       Library.derevoCirce,
       Library.logback,
       Library.pureConfig,
-      Library.munit,
-      Library.munitCatsEffect,
+      Library.weaverCats,
       Library.newtype,
       Library.log4catsNoOp,
       Library.betterMonadicFor,
       Library.kindProjector
-    ),
-    testFrameworks += new TestFramework("munit.Framework")
+    )
   )
 
 fork := true // https://github.com/typelevel/cats-effect/pull/833/files

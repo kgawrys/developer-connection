@@ -13,12 +13,11 @@ object Dependencies {
     val scalaCacheCaffeine = "1.0.0-M6"
 
     // Test
-    val munit           = "0.7.29"
-    val munitCatsEffect = "1.0.7"
+    val weaver = "0.7.9"
 
     // Compiler
-    val betterMonadicFor = "0.3.1" // TODO what for?
-    val kindProjector    = "0.13.2" // TODO what for?
+    val betterMonadicFor = "0.3.1"
+    val kindProjector    = "0.13.2"
   }
 
   object Library { // Libraries
@@ -35,9 +34,8 @@ object Dependencies {
     val pureConfig         = "com.github.pureconfig" %% "pureconfig"           % Version.pureConfig
     val scalaCacheCaffeine = "com.github.cb372"      %% "scalacache-caffeine"  % Version.scalaCacheCaffeine
 
-    val munit           = "org.scalameta" %% "munit"               % Version.munit           % Test // todo scalatest (?)
-    val munitCatsEffect = "org.typelevel" %% "munit-cats-effect-3" % Version.munitCatsEffect % Test // todo scalatest (?)
-    val log4catsNoOp    = "org.typelevel" %% "log4cats-noop"       % Version.log4cats        % Test
+    val weaverCats   = "com.disneystreaming" %% "weaver-cats"   % Version.weaver   % Test
+    val log4catsNoOp = "org.typelevel"       %% "log4cats-noop" % Version.log4cats % Test
 
     val betterMonadicFor = compilerPlugin("com.olegpy" %% "better-monadic-for" % Version.betterMonadicFor)
     val kindProjector    = compilerPlugin("org.typelevel" %% "kind-projector" % Version.kindProjector cross CrossVersion.full)
