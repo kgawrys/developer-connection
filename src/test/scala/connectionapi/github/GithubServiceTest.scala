@@ -27,22 +27,22 @@ object GithubServiceTest extends SimpleIOSuite {
   private def mockedRoutes(mkResponse: IO[Response[IO]]) =
     HttpRoutes
       .of[IO] {
-        case GET -> Root / "users" / _ / orgs => mkResponse
+        case GET -> Root / "users" / _ / "orgs" => mkResponse
       }
       .orNotFound
 
   test("parse valid response") {
-    val client        = Client.fromHttpApp(mockedRoutes(Ok.apply("""[{"login": "mustache"}]""")))
-    val githubService = GithubService.make[IO](client, githubConfig)
-    githubService
+    val client = Client.fromHttpApp(mockedRoutes(Ok.apply("""[{"login": "mustache"}]""")))
+    GithubService
+      .make[IO](client, githubConfig)
       .getOrganizations(DeveloperName("dev"))
       .map(organizations => expect.same(Seq(GithubOrganization("mustache")), organizations))
   }
 
   test("handle not found user") {
-    val client        = Client.fromHttpApp(mockedRoutes(NotFound()))
-    val githubService = GithubService.make[IO](client, githubConfig)
-    githubService
+    val client = Client.fromHttpApp(mockedRoutes(NotFound()))
+    GithubService
+      .make[IO](client, githubConfig)
       .getOrganizations(DeveloperName("dev"))
       .attempt
       .map {
@@ -52,9 +52,9 @@ object GithubServiceTest extends SimpleIOSuite {
   }
 
   test("handle api error") {
-    val client        = Client.fromHttpApp(mockedRoutes(InternalServerError()))
-    val githubService = GithubService.make[IO](client, githubConfig)
-    githubService
+    val client = Client.fromHttpApp(mockedRoutes(InternalServerError()))
+    GithubService
+      .make[IO](client, githubConfig)
       .getOrganizations(DeveloperName("dev"))
       .attempt
       .map {
