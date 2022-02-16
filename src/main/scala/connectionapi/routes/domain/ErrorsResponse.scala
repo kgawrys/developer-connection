@@ -3,10 +3,10 @@ package connectionapi.routes.domain
 import cats.data.NonEmptyList
 import connectionapi.github.domain.GithubResponse.GithubException
 import connectionapi.twitter.domain.TwitterResponse.TwitterException
-import derevo.circe.magnolia.encoder
+import derevo.circe.magnolia.{ decoder, encoder }
 import derevo.derive
 
-@derive(encoder)
+@derive(encoder, decoder)
 case class ErrorsResponse(errors: List[String])
 
 case object ErrorsResponse {
